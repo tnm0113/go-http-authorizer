@@ -52,7 +52,8 @@ func main(){
 	}
 
 	// create new enforcer
-	authEnforcer, err := casbin.NewEnforcer("./auth_model.conf", a)
+	authEnforcer, err := casbin.NewCachedEnforcer("./auth_model.conf", a)
+	// authEnforcer, err := casbin.NewEnforcer("./auth_model.conf", a)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -82,7 +83,7 @@ func main(){
 	log.Fatal(http.ListenAndServe(":9000", mux))
 }
 
-func checkAuthorizeHandler(enforce *casbin.Enforcer) http.HandlerFunc {
+func checkAuthorizeHandler(enforce *casbin.CachedEnforcer) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		var authInfo AuthorizeInfo
 		err := json.NewDecoder(r.Body).Decode(&authInfo)
@@ -105,7 +106,7 @@ func checkAuthorizeHandler(enforce *casbin.Enforcer) http.HandlerFunc {
 	})
 }
 
-func addPoliciesHandler(enforce *casbin.Enforcer) http.HandlerFunc {
+func addPoliciesHandler(enforce *casbin.CachedEnforcer) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == http.MethodPost {
 			var authInfo AuthorizeInfo
@@ -127,7 +128,7 @@ func addPoliciesHandler(enforce *casbin.Enforcer) http.HandlerFunc {
 	})
 }
 
-func deletePoliciesHandler(enforce *casbin.Enforcer) http.HandlerFunc {
+func deletePoliciesHandler(enforce *casbin.CachedEnforcer) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == http.MethodDelete {
 			var authInfo AuthorizeInfo
@@ -153,7 +154,7 @@ func deletePoliciesHandler(enforce *casbin.Enforcer) http.HandlerFunc {
 	})
 }
 
-func getPoliciesHandler(enforce *casbin.Enforcer) http.HandlerFunc {
+func getPoliciesHandler(enforce *casbin.CachedEnforcer) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == http.MethodGet {
 			policies := enforce.GetPolicy()
